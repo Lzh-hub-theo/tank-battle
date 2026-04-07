@@ -11,7 +11,7 @@ from operation import Operation
 from vision.segmentation import Segmenter
 from vision.filters import ShapeFilter
 from vision.hsv_tuner import HSVTuner
-from vision.spliter import GridPartition
+from code.vision.partition import GridPartition
 
 class TankGameEnv:
     def __init__(self):
@@ -82,8 +82,6 @@ class TankGameEnv:
         mask_enemy = masks["enemy"]
         contours_enemy, _ = cv2.findContours(mask_enemy, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         contours_enemy = ShapeFilter.filter_tank(contours_enemy) # 形状过滤，解决砖墙误判
-        if self.debug:
-            ShapeFilter.debug_draw(img, contours_enemy, (0, 0, 255))
         for cnt in contours_enemy:
             x, y, w, h = cv2.boundingRect(cnt)
             center = (x + w//2, y + h//2)
@@ -170,7 +168,7 @@ class TankGameEnv:
                 state, annotated_img = self.detect_game_state(raw_img)
                 if self.debug:
                     cv2.imshow("Cropped", annotated_img)
-                    # tuner = HSVTuner()
+                    # tuner = HSVTuner() # HSV提取颜色
                     # tuner.run(raw_img)
                     # break
                 
