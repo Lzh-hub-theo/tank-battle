@@ -14,7 +14,8 @@ project/
 │     ├── segmentation.py   # 像素级分割
 │     ├── filters.py        # 形状过滤
 │     ├── entity/
-│            ├── bullet.py  
+│            ├── bullet.py
+│            ├── base.py  
 │            ├── enemy.py  
 │            ├── grass.py  
 │            ├── ironwall.py  

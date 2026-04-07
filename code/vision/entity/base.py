@@ -10,8 +10,8 @@ class BaseDetector:
         
         mask = np.zeros((height, width), dtype=np.uint8)
         
-        y1, x1 = 387, 198
-        y2, x2 = 415, 228
+        y1, x1 = 385, 194
+        y2, x2 = 413, 224
         
         mask[y1:y2, x1:x2] = 255
         
