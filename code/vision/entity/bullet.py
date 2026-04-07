@@ -1,12 +1,24 @@
+import os
 import cv2
 import numpy as np
 from ..filters import ShapeFilter
+from ..template_matcher import TemplateMatcher
 
 class BulletDetector:
     def __init__(self):
         # --- 1. 定义灰色 (子弹主体) ---
         self.lower_gray = np.array([0, 0, 140])
         self.upper_gray = np.array([180, 45, 255])
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        self.template_matcher = TemplateMatcher(
+            template_paths=[
+                os.path.join(BASE_DIR, "vision", "template", "bullet", "bullet1.png"),
+                os.path.join(BASE_DIR, "vision", "template", "bullet", "bullet2.png"),
+                os.path.join(BASE_DIR, "vision", "template", "bullet", "bullet3.png"),
+                os.path.join(BASE_DIR, "vision", "template", "bullet", "bullet4.png")
+            ]
+        )
 
     def get_mask(self, hsv):
         # --- 2. 创建掩膜 ---
@@ -30,5 +42,10 @@ class BulletDetector:
         contours_bullet = ShapeFilter.filter_bullet(contours_bullet)
         for cnt in contours_bullet:
             x, y, w, h = cv2.boundingRect(cnt)
+            roi = img[y:y+h, x:x+w]
+            # ===== 模板匹配验证 =====
+            is_bullet, score = self.template_matcher.match(roi)
+            if not is_bullet:
+                continue  # 过滤误检
             cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 1)  # 蓝色
             cv2.putText(img, "bullet", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)

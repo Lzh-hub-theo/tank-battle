@@ -26,5 +26,5 @@ class BaseDetector:
         contours_base = ShapeFilter.filter_wall(contours_base)
         for cnt in contours_base:
             x, y, w, h = cv2.boundingRect(cnt)
-            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 1)  # 绿色
-            cv2.putText(img, "base", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+            # cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 1)  # 绿色
+            # cv2.putText(img, "base", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)

@@ -1,6 +1,8 @@
+import os
 import cv2
 import numpy as np
 from ..partition import GridPartition
+from ..template_matcher import TemplateMatcher
 
 class IronWallDetector:
     def __init__(self):
@@ -16,6 +18,13 @@ class IronWallDetector:
             lower = np.clip(color - self.tolerance, 0, upper_limit)
             upper = np.clip(color + self.tolerance, 0, upper_limit)
             self.color_ranges.append((lower, upper))
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        self.template_matcher = TemplateMatcher(
+            template_paths=[
+                os.path.join(BASE_DIR, "vision", "template", "steel", "steel.png")
+            ]
+        )
 
     def get_mask(self, hsv):
         # 初始化一个全黑的掩膜
@@ -35,5 +44,9 @@ class IronWallDetector:
         mask_steel = self.get_mask(hsv)
         steel_cells = GridPartition.extract_wall_cells(mask_steel, grid_size=16)
         for (x, y, w, h) in steel_cells:
+            roi = img[y:y+h, x:x+w]
+            is_enemy, score = self.template_matcher.match(roi)
+            if not is_enemy:
+                continue  # 过滤误检
             cv2.rectangle(img, (x, y), (x+w, y+h), (0, 165, 255), 1)
             cv2.putText(img, "S", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)

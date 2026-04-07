@@ -1,9 +1,12 @@
+import os
 import cv2
 import numpy as np
 from ..filters import ShapeFilter
+from ..template_matcher import TemplateMatcher
 
 class EnemyDetector:
     def __init__(self):
+        # 颜色HSV匹配
         self.tolerance = 2
         upper_limit = np.array([180, 255, 255])
         
@@ -16,6 +19,17 @@ class EnemyDetector:
             lower = np.clip(color - self.tolerance, 0, upper_limit)
             upper = np.clip(color + self.tolerance, 0, upper_limit)
             self.color_ranges.append((lower, upper))
+
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        # 模版匹配
+        self.template_matcher = TemplateMatcher(
+            template_paths=[
+                os.path.join(BASE_DIR, "vision", "template", "enemy_bot", "tank1.png"),
+                os.path.join(BASE_DIR, "vision", "template", "enemy_bot", "tank1.png"),
+                os.path.join(BASE_DIR, "vision", "template", "enemy_bot", "tank1.png"),
+                os.path.join(BASE_DIR, "vision", "template", "enemy_bot", "tank1.png")
+            ]
+        )
 
     def get_mask(self, hsv):
         # 初始化一个全黑的掩膜
@@ -37,6 +51,12 @@ class EnemyDetector:
         contours_enemy = ShapeFilter.filter_tank(contours_enemy) # 形状过滤，解决砖墙误判
         for cnt in contours_enemy:
             x, y, w, h = cv2.boundingRect(cnt)
+
+            roi = img[y:y+h, x:x+w]
+            is_enemy, score = self.template_matcher.match(roi)
+            if not is_enemy:
+                continue  # 过滤误检
+
             center = (x + w//2, y + h//2)
             state['enemy_positions'].append(center)
             state['enemy_count'] += 1

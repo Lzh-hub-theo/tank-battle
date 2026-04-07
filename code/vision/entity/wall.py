@@ -33,6 +33,6 @@ class WallDetector:
         # 4. 砖墙
         mask_brick = self.get_mask(hsv)
         brick_cells = GridPartition.extract_wall_cells(mask_brick, grid_size=8)
-        for (x, y, w, h) in brick_cells:
-            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 165, 255), 1)
+        # for (x, y, w, h) in brick_cells:
+        #     cv2.rectangle(img, (x, y), (x+w, y+h), (0, 165, 255), 1)
             # cv2.putText(img, "Br", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)

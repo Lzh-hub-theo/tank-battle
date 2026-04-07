@@ -35,6 +35,6 @@ class RiverDetector:
         # 5. 水
         mask_water = self.get_mask(hsv)
         river_cells = GridPartition.extract_wall_cells(mask_water, grid_size=32)
-        for (x, y, w, h) in river_cells:
-            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 165, 255), 1)
-            cv2.putText(img, "R", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+        # for (x, y, w, h) in river_cells:
+        #     cv2.rectangle(img, (x, y), (x+w, y+h), (0, 165, 255), 1)
+        #     cv2.putText(img, "R", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)

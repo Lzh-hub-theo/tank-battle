@@ -34,6 +34,6 @@ class GrassDetector:
         # 8. 草地
         mask_grass = self.get_mask(hsv)
         grass_cells = GridPartition.extract_wall_cells(mask_grass, grid_size=32)
-        for (x, y, w, h) in grass_cells:
-            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 165, 255), 1)
-            cv2.putText(img, "G", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+        # for (x, y, w, h) in grass_cells:
+        #     cv2.rectangle(img, (x, y), (x+w, y+h), (0, 165, 255), 1)
+        #     cv2.putText(img, "G", (x, y-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
