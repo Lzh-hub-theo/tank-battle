@@ -1,0 +1,154 @@
+前两步都修改了，但是这里还有一些修改上的问题，比如说fieController中的shouldFire
+export default function* fireController(tankId: TankId, shouldFire: () => boolean) {
+  // tank.cooldown用来记录player距离下一次可以发射子弹的时间
+  // tank.cooldown大于0的时候玩家不能发射子弹
+  // 每个TICK时, cooldown都会相应减少. 坦克发射子弹的时候, cooldown重置为坦克的发射间隔
+  // tank.cooldown和bulletLimit共同影响坦克能否发射子弹
+  while (true) {
+    const { delta }: actions.Tick = yield take(A.Tick)
+    const { bullets: allBullets }: State = yield select()
+    const tank: TankRecord = yield select((s: State) => s.tanks.get(tankId))
+    const { game }: State = yield select()
+    if (tank == null || !tank.alive || (tank.side === 'bot' && game.botFrozenTimeout > 0)) {
+      continue
+    }
+    let nextCooldown = tank.cooldown <= 0 ? 0 : tank.cooldown - delta
+
+    if (tank.cooldown <= 0 && shouldFire()) {
+      const bullets = allBullets.filter(bullet => bullet.tankId === tank.tankId)
+      if (bullets.count() < values.bulletLimit(tank)) {
+        const { x, y } = calculateBulletStartPosition(tank)
+        if (tank.side === 'player') {
+          yield put(actions.playSound('bullet_shot'))
+        }
+        const bullet = new BulletRecord({
+          bulletId: getNextId('bullet'),
+          direction: tank.direction,
+          x,
+          y,
+          lastX: x,
+          lastY: y,
+          power: values.bulletPower(tank),
+          speed: values.bulletSpeed(tank),
+          tankId: tank.tankId,
+          side: tank.side,
+          playerName: yield select(selectors.playerName, tankId),
+        })
+        yield put(actions.addBullet(bullet))
+        // 一旦发射子弹, 则重置cooldown计数器
+        nextCooldown = values.bulletInterval(tank)
+      } // else 如果坦克发射的子弹已经到达上限, 则坦克不能继续发射子弹
+    }
+
+    if (tank.cooldown !== nextCooldown) {
+      yield put(actions.setCooldown(tank.tankId, nextCooldown))
+    }
+  }
+}
+这句话我根本找不到地方添加。
+关闭自动Tick也是让我难堪：
+export default function* tickEmitter(options: TickEmitterOptions = {}) {
+  const AI_MODE = true
+  const { bindESC = false, slow = 1, maxFPS = Infinity } = options
+  let escChannel: EventChannel<'Escape'>
+  const tickChannel = eventChannel<actions.Tick>(emit => {
+    let lastTime = performance.now()
+    let requestId = requestAnimationFrame(emitTick)
+
+    function emitTick() {
+      const now = performance.now()
+      ReactDOM.unstable_batchedUpdates(emit, actions.tick(now - lastTime))
+      lastTime = now
+      requestId = requestAnimationFrame(emitTick)
+    }
+
+    return () => cancelAnimationFrame(requestId)
+  })
+
+  if (bindESC) {
+    escChannel = eventChannel(emitter => {
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === 'Escape') {
+          emitter('Escape')
+        }
+      }
+      document.addEventListener('keydown', onKeyDown)
+      return () => {
+        document.removeEventListener('keydown', onKeyDown)
+      }
+    })
+    yield takeEvery(escChannel, function* handleESC() {
+      const {
+        game: { paused },
+      }: State = yield select()
+      yield put(actions.playSound('pause'))
+      if (!paused) {
+        yield put(actions.gamePause())
+      } else {
+        yield put(actions.gameResume())
+      }
+    })
+  }
+
+  try {
+    let accumulation = 0
+    while (true) {
+      const { delta }: actions.Tick = yield take(tickChannel)
+      const {
+        game: { paused },
+      }: State = yield select()
+      if (!paused) {
+        accumulation += delta
+        if (accumulation > 1000 / maxFPS) {
+          yield put(actions.tick(accumulation / slow))
+          yield put(actions.afterTick(accumulation / slow))
+          accumulation = 0
+        }
+      }
+    }
+  } finally {
+    tickChannel.close()
+    if (escChannel) {
+      escChannel.close()
+    }
+  }
+}
+下面这句话也是不知道怎么添加
+if (!AI_MODE) {
+  requestAnimationFrame(emitTick)
+}
+
+main.tsx是这个样的：
+import 'normalize.css'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
+import App from './App'
+import './battle-city.css'
+import store from './utils/store'
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById('container'),
+)
+
+你给的这段代码怎么跟已有的代码整合
+import { TankEnv } from './rl/env'
+import { RLAction } from './rl/action'
+
+const env = new TankEnv()
+
+setTimeout(() => {
+  let state = env.reset()
+
+  for (let i = 0; i < 1000; i++) {
+    const action = Math.floor(Math.random() * 6)
+    const result = env.step(action)
+
+    if (result.done) break
+  }
+
+  console.log('RL test finished')
+}, 1000)

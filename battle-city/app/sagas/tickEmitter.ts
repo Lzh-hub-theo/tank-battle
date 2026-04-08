@@ -11,9 +11,14 @@ export interface TickEmitterOptions {
 }
 
 export default function* tickEmitter(options: TickEmitterOptions = {}) {
+  const AI_MODE = true
   const { bindESC = false, slow = 1, maxFPS = Infinity } = options
   let escChannel: EventChannel<'Escape'>
   const tickChannel = eventChannel<actions.Tick>(emit => {
+    if (AI_MODE) {
+      return () => {}
+    }
+
     let lastTime = performance.now()
     let requestId = requestAnimationFrame(emitTick)
 
