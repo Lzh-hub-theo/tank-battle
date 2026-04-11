@@ -8,3 +8,109 @@ battle-city/yarn.lock
 battle-city-cv/node_modules/
 ai-maze-navigation/code/__pycache__/
 .vscode/
+
+# 依赖的迷宫游戏ignore
+# Byte-compiled / optimized / DLL files
+Maze_AI/__pycache__/
+Maze_AI/*.py[cod]
+Maze_AI/*$py.class
+
+# C extensions
+Maze_AI/*.so
+
+# Distribution / packaging
+Maze_AI/.Python
+Maze_AI/build/
+Maze_AI/develop-eggs/
+Maze_AI/dist/
+Maze_AI/downloads/
+Maze_AI/eggs/
+Maze_AI/.eggs/
+Maze_AI/lib/
+Maze_AI/lib64/
+Maze_AI/parts/
+Maze_AI/sdist/
+Maze_AI/var/
+Maze_AI/wheels/
+Maze_AI/*.egg-info/
+Maze_AI/.installed.cfg
+Maze_AI/*.egg
+Maze_AI/MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+Maze_AI/*.manifest
+Maze_AI/*.spec
+
+# Installer logs
+Maze_AI/pip-log.txt
+Maze_AI/pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+Maze_AI/htmlcov/
+Maze_AI/.tox/
+Maze_AI/.coverage
+Maze_AI/.coverage.*
+Maze_AI/.cache
+Maze_AI/nosetests.xml
+Maze_AI/coverage.xml
+Maze_AI/*.cover
+Maze_AI/.hypothesis/
+Maze_AI/.pytest_cache/
+
+# Translations
+Maze_AI/*.mo
+Maze_AI/*.pot
+
+# Django stuff:
+Maze_AI/*.log
+Maze_AI/local_settings.py
+Maze_AI/db.sqlite3
+
+# Flask stuff:
+Maze_AI/instance/
+Maze_AI/.webassets-cache
+
+# Scrapy stuff:
+Maze_AI/.scrapy
+
+# Sphinx documentation
+Maze_AI/docs/_build/
+
+# PyBuilder
+Maze_AI/target/
+
+# Jupyter Notebook
+Maze_AI/.ipynb_checkpoints
+
+# pyenv
+Maze_AI/.python-version
+
+# celery beat schedule file
+Maze_AI/celerybeat-schedule
+
+# SageMath parsed files
+Maze_AI/*.sage.py
+
+# Environments
+Maze_AI/.env
+Maze_AI/.venv
+Maze_AI/env/
+Maze_AI/venv/
+Maze_AI/ENV/
+Maze_AI/env.bak/
+Maze_AI/venv.bak/
+
+# Spyder project settings
+Maze_AI/.spyderproject
+Maze_AI/.spyproject
+
+# Rope project settings
+Maze_AI/.ropeproject
+
+# mkdocs documentation
+/Maze_AI/site
+
+# mypy
+Maze_AI/.mypy_cache/
