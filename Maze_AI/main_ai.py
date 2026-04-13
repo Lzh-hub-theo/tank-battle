@@ -10,7 +10,7 @@ from random import randint, choice
 import color
 import mapp1
 from maze_env import MazeEnv
-from q_agent import QLearningAgent
+from dqn_agent import DQNAgent
 
 
 # 常量定义
@@ -40,7 +40,7 @@ def print_text(font, x, y, text, color_val, shadow=True):
 
 
 def train_agent(env, agent, episodes=TRAINING_EPISODES):
-    """训练Q-learning agent，并记录每轮reward，训练结束后绘制reward曲线图"""
+    """训练DQN agent，并记录每轮reward，训练结束后绘制reward曲线图"""
     print(f"开始训练Agent，共{episodes}轮次...")
     font = pygame.font.Font(FONT_PATH, 24)
     rewards_list = []
@@ -48,16 +48,17 @@ def train_agent(env, agent, episodes=TRAINING_EPISODES):
         state = env.reset()
         total_reward = 0
         steps = 0
+        done = False
         while steps < 100:
             action = agent.choose_action(state)
             next_state, reward, done = env.step(action)
-            agent.learn(state, action, reward, next_state)
+            agent.remember(state, action, reward, next_state, done)
+            agent.learn()
             state = next_state
             total_reward += reward
             steps += 1
             if done:
                 break
-        agent.decay_epsilon()
         rewards_list.append(total_reward)
         # 每50轮打印一次训练进度
         if (episode + 1) % 50 == 0:
@@ -79,7 +80,7 @@ def train_agent(env, agent, episodes=TRAINING_EPISODES):
         plt.plot(rewards_list, label='Episode Reward')
         plt.xlabel('Episode')
         plt.ylabel('Reward')
-        plt.title('Q-Learning Training Reward Curve')
+        plt.title('DQN Training Reward Curve')
         plt.legend()
         plt.tight_layout()
         save_path = os.path.join(save_dir, 'reward_curve.png')
@@ -365,34 +366,34 @@ if __name__ == '__main__':
     env = MazeEnv()
     state_size = env.maze_width * env.maze_height  # 6*6 = 36
     action_size = env.action_size  # 4
-    agent = QLearningAgent(state_size, action_size)
+    agent = DQNAgent(state_size, action_size)
 
-    # Q表保存路径
+    # DQN模型保存路径
     import os
-    q_table_path = os.path.join(os.path.dirname(__file__), 'statistic', 'q_table.npy')
+    model_path = os.path.join(os.path.dirname(__file__), 'statistic', 'dqn_model.pth')
 
-    # 检查Q表是否存在，存在则加载，否则训练
-    if os.path.exists(q_table_path):
+    # 检查模型是否存在，存在则加载，否则训练
+    if os.path.exists(model_path):
         try:
-            agent.load(q_table_path)
-            print(f"检测到已训练模型，已加载Q表：{q_table_path}\n可直接进行AI演示或手动游戏。")
+            agent.load(model_path)
+            print(f"检测到已训练模型，已加载DQN模型：{model_path}\n可直接进行AI演示或手动游戏。")
             trained = True
         except Exception as e:
-            print(f"加载Q表失败，将重新训练。错误信息：{e}")
+            print(f"加载DQN模型失败，将重新训练。错误信息：{e}")
             trained = False
     else:
         trained = False
 
     if not trained:
-        print("\n========== 开始训练强化学习Agent ==========")
+        print("\n========== 开始训练DQN Agent ==========")
         train_agent(env, agent, TRAINING_EPISODES)
         print("========== 训练完成 ==========\n")
-        # 保存Q表
-        save_dir = os.path.dirname(q_table_path)
+        # 保存模型
+        save_dir = os.path.dirname(model_path)
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-        agent.save(q_table_path)
-        print(f"Q表已保存到：{q_table_path}")
+        agent.save(model_path)
+        print(f"DQN模型已保存到：{model_path}")
 
     # 加载迷宫
     r_list = [row[:] for row in mapp1.map_list]
