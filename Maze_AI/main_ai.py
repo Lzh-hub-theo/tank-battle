@@ -357,34 +357,56 @@ if __name__ == '__main__':
     pygame.init()
     screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
     pygame.display.set_caption('Maze_AI（带强化学习）——by Wonz')
-    
+
     clock = pygame.time.Clock()
     fps = 20
-    
+
     # 创建环境和agent
     env = MazeEnv()
     state_size = env.maze_width * env.maze_height  # 6*6 = 36
     action_size = env.action_size  # 4
     agent = QLearningAgent(state_size, action_size)
-    
-    # 训练agent
-    print("\n========== 开始训练强化学习Agent ==========")
-    train_agent(env, agent, TRAINING_EPISODES)
-    print("========== 训练完成 ==========\n")
-    
+
+    # Q表保存路径
+    import os
+    q_table_path = os.path.join(os.path.dirname(__file__), 'statistic', 'q_table.npy')
+
+    # 检查Q表是否存在，存在则加载，否则训练
+    if os.path.exists(q_table_path):
+        try:
+            agent.load(q_table_path)
+            print(f"检测到已训练模型，已加载Q表：{q_table_path}\n可直接进行AI演示或手动游戏。")
+            trained = True
+        except Exception as e:
+            print(f"加载Q表失败，将重新训练。错误信息：{e}")
+            trained = False
+    else:
+        trained = False
+
+    if not trained:
+        print("\n========== 开始训练强化学习Agent ==========")
+        train_agent(env, agent, TRAINING_EPISODES)
+        print("========== 训练完成 ==========\n")
+        # 保存Q表
+        save_dir = os.path.dirname(q_table_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        agent.save(q_table_path)
+        print(f"Q表已保存到：{q_table_path}")
+
     # 加载迷宫
     r_list = [row[:] for row in mapp1.map_list]
-    
+
     # 修改地图中的3为0（起点标记变为通路）
     for i in range(6):
         for j in range(6):
             if r_list[j][i] == 3:
                 r_list[j][i] = 0
-    
+
     # 菜单循环
     while True:
         choice = show_menu()
-        
+
         if choice is None:
             pygame.quit()
             sys.exit()

@@ -20,6 +20,16 @@ class QLearningAgent:
         self.epsilon = 1.0        # 初始探索率
         self.epsilon_decay = 0.995  # 探索率衰减
         self.epsilon_min = 0.1    # 最小探索率
+
+    def save(self, filepath):
+        """保存Q表到本地文件（npy格式）"""
+        import numpy as np
+        np.save(filepath, self.q_table)
+
+    def load(self, filepath):
+        """从本地文件加载Q表"""
+        import numpy as np
+        self.q_table = np.load(filepath)
     
     def choose_action(self, state):
         """
