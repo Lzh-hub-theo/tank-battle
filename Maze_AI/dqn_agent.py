@@ -10,7 +10,7 @@ from dqn.replay_buffer import ReplayBuffer
 from dqn.dqn_net import DQNNet
 
 class DQNAgent:
-    def __init__(self, action_size, state_dim=2, device=None, learning_rate=1e-3, gamma=0.99, epsilon=1.0, epsilon_decay=0.995, epsilon_min=0.1):
+    def __init__(self, action_size, state_dim=2, device=None, learning_rate=1e-3, gamma=0.998, epsilon=1.0, epsilon_decay=0.995, epsilon_min=0.1):
         self.action_size = action_size
         self.memory = ReplayBuffer(maxlen=10000)
         self.gamma = gamma

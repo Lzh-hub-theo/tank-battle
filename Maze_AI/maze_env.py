@@ -74,13 +74,16 @@ class MazeEnv:
             return next_state, self.REWARD_GOAL, True
         # 普通步
         # 计算普通步奖励（含重复访问惩罚）
-        reward = self.REWARD_STEP
+
+        potential_old = score_matrix[old_y][old_x]
+        potential_new = score_matrix[new_y][new_x]
+        shaping = 0.998 * potential_new - potential_old
+        reward = self.REWARD_STEP + shaping
+
         if self.agent_pos in self.visited:
-            reward = reward + self.REWARD_REVISIT + (score_matrix[new_y][new_x] - score_matrix[old_y][old_x])
+            reward = reward + self.REWARD_REVISIT
         else:
             self.visited.add(self.agent_pos)
-            x, y = self.agent_pos
-            reward += (score_matrix[y][x] - score_matrix[old_y][old_x])
 
         return next_state, reward, False
 
